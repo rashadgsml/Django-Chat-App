@@ -1,7 +1,28 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 User = get_user_model()
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, blank=True, null=True ,on_delete=models.CASCADE)
+    friends = models.ManyToManyField('self', blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    try:
+        instance.profile.save()
+    except:
+        print("Exception")
 
 class Message(models.Model):
     author = models.ForeignKey(User, related_name='author_messages', on_delete=models.CASCADE)
@@ -10,3 +31,17 @@ class Message(models.Model):
 
     def last_10_messages():
         return Message.objects.order_by('-timestamp').all()[:10]
+    
+    def __str__(self):
+        return self.content
+
+class Chat(models.Model):
+    room_name = models.CharField(max_length=10)
+    participants = models.ManyToManyField(Profile, blank=True)
+    messages = models.ManyToManyField(Message, blank=True)
+
+    def last_10_messages(self):
+        return self.messages.all().order_by('-timestamp').all()[:10]
+
+    def __str__(self):
+        return self.room_name

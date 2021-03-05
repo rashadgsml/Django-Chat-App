@@ -18,7 +18,7 @@
 <script>try{Typekit.load({ async: true });}catch(e){}</script>
 <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'><link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
 <link rel="stylesheet" href="{% static 'css/room_style.css' %}">
-
+<link rel="stylesheet" href="{% static 'css/loader.css' %}">
 </head>
 <body>
 <div id="frame">
@@ -51,17 +51,27 @@
 			<input type="text" placeholder="Search contacts..." />
 		</div>
 		<div id="contacts">
-			<ul>
-				<li class="contact active">
-					<div class="wrap">
-						<span class="contact-status busy"></span>
-						<img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-						<div class="meta">
-							<p class="name">{{normal_room_name}}</p>
-							<p class="preview" id="preview"></p>
+			<ul id="rooms">
+				{% for room in rooms %}
+						{% if normal_room_name == room.room_name %}
+						<li class="contact active" id="id-{{room.id}}-submit">
+						{% else %}
+						<li class="contact" id="id-{{room.id}}-submit">
+						{% endif %}
+						<div class="wrap">
+							<span class="contact-status busy"></span>
+							<img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+							<div class="meta">
+								{% if room.participants.all.count == 2 %}
+								<p class="name" id="id-{{room.id}}-input">{{room.participants.last}}</p>
+								{% else %}
+								<p class="name" id="id-{{room.id}}-input">{{room.room_name}}</p>
+								{% endif %}
+								<p class="preview" id="preview-{{room.id}}"></p>
+							</div>
 						</div>
-					</div>
-				</li>
+					</li>
+				{% endfor %}
 			</ul>
 		</div>
 		<div id="bottom-bar">
@@ -72,11 +82,11 @@
 	<div class="content">
 		<div class="contact-profile">
 			<img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-			<p>{{ normal_username }}</p>
+			<p>{{ participants }}</p>
 			<div class="social-media">
 				<i class="fa fa-facebook" aria-hidden="true"></i>
 				<i class="fa fa-twitter" aria-hidden="true"></i>
-				 <i class="fa fa-instagram" aria-hidden="true"></i>
+				<i class="fa fa-instagram" aria-hidden="true"></i>
 			</div>
 		</div>
 		<div class="messages" id="chat-area">
@@ -101,9 +111,17 @@
 		</div>
 	</div>
 </div>
+<div class="loader-wrapper">
+	<span class="loader"><span class="loader-inner"></span></span>
+</div>
 {{ room_name|json_script:"room-name" }}
-<script src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script><script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
 
+<script src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script><script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<script>
+	$(window).on("load",function(){
+		$(".loader-wrapper").fadeOut("slow");
+	  });
+</script>
 <script>
     var roomName = {{ room_name }}
 	var username = {{ username }};
@@ -126,12 +144,16 @@
 			for (let i=data['messages'].length-1; i>=0; i--){
 				createMessage(data['messages'][i]);
 			}
-			document.getElementById("preview").innerHTML = (`${data['messages'][0].author}: ${data['messages'][0].content}`);
+			{% for room in rooms %}
+				document.getElementById("preview-{{room.id}}").innerHTML = (`{{room.messages.all.last.author}}: {{room.messages.all.last.content}}`);
+			{% endfor %}
 			updateScroll();
 		}
 		else if (data['command'] === 'new_message'){
 			createMessage(data['message']);
-			document.getElementById("preview").innerHTML = (`${data['message'].author}: ${data['message'].content}`);
+			for (let i=0; i<data['rooms'].length; i++){
+				document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['last_participant']}: ${data['rooms'][i]['last_message']}`);
+			}
 			updateScroll();
 		}
     };
@@ -150,16 +172,18 @@
     document.querySelector('#chat-message-submit').onclick = function(e) {
         const messageInputDom = document.querySelector('#chat-message-input');
         const message = messageInputDom.value;
+		
         chatSocket.send(JSON.stringify({
             'message': message,
 			'command': 'new_message',
-			'from' : username
+			'from' : username,
+			'room_name':roomName
         }));
         messageInputDom.value = '';
     };
 
 	function fetchMessages(){
-		chatSocket.send(JSON.stringify({'command':'fetch_messages'}));
+		chatSocket.send(JSON.stringify({'command':'fetch_messages','room_name':roomName}));
 	}
 	
 	function createMessage(data){
@@ -185,7 +209,22 @@
 		var element = document.getElementById("chat-area");
 		element.scrollTop = element.scrollHeight;
 	}
+	
+	{% for i in rooms %}
+		document.querySelector('#id-{{i.id}}-input').focus();
+			document.querySelector('#id-{{i.id}}-input').onkeyup = function(e) {
+				if (e.keyCode === 13) {  // enter, return
+					document.querySelector('#id-{{i.id}}-submit').click();
+				}
+			};
 
+		document.querySelector('#id-{{i.id}}-submit').onclick = function(e) {
+			console.log('sa')
+			window.location.pathname = '/chat/' + '{{i.room_name}}' + '/';
+		};
+	{% endfor %}
+
+	
 </script>
 
 <script>

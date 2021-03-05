@@ -2,7 +2,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import Message
+from .models import Message, Chat, Profile
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -10,42 +10,63 @@ User = get_user_model()
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
-        messages = Message.last_10_messages()
+        chat = Chat.objects.get(room_name=data['room_name'])
+        messages = chat.last_10_messages()
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages)
         }
-        print('fetch')
+        print(data['room_name'])
         self.send_message(content)
     
     def new_message(self, data):
         author = data['from']
         author_user = User.objects.filter(username=author)[0]
+        
         message = Message.objects.create(
             author = author_user,
             content = data['message']
         )
+        
         content = {
             'command': 'new_message',
-            'message': self.message_to_json(message)
+            'message': self.message_to_json(message),
         }
+        chat = Chat.objects.get(room_name=data['room_name'])
+        chat.messages.add(message)
+        profile = Profile.objects.get(user=self.scope["user"])
+        rooms = Chat.objects.filter(participants=profile)
+        content['rooms'] = self.rooms_to_json(rooms)
+        print(self.rooms_to_json(rooms))
         print('new')
+        print(data)
         return self.send_chat_message(content)
-
 
     def messages_to_json(self, messages):
         result = []
         for message in messages:
             result.append(self.message_to_json(message))
-        print('s to json')
         return result
         
     def message_to_json(self, message):
-        print('to json')
         return {
             'author': message.author.username,
             'content': message.content,
             'timestamp': str(message.timestamp)
+        }
+
+    def rooms_to_json(self, rooms):
+        result = []
+        for room in rooms:
+            result.append(self.room_to_json(room))
+        return result
+        
+    def room_to_json(self, room):
+        return {
+            'room_id': room.id,
+            'room_name': room.room_name,
+            'last_participant': room.messages.all().last().author.username,
+            'last_message': room.messages.all().last().content
         }
 
     commands = {
@@ -56,7 +77,7 @@ class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
-
+        
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
