@@ -1,11 +1,11 @@
 # chat/urls.py
 from django.urls import path
 
-from .views import index, room
+from .views import chat_index, room
 
 app_name = 'chat'
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', chat_index, name='chat_index'),
     path('<str:room_name>/', room, name='room'),
 ]

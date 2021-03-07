@@ -5,6 +5,14 @@ from django.db.models.signals import post_save
 
 User = get_user_model()
 
+class FriendRequest(models.Model):
+    from_profile = models.ForeignKey('Profile', related_name='from_profile' ,on_delete=models.CASCADE)
+    to_profile = models.ForeignKey('Profile', related_name='to_profile' ,on_delete=models.CASCADE)
+    request_status = models.BooleanField(default=None, blank=True, null=True)
+
+    def __str__(self):
+        return self.from_profile.user.username
+
 class Profile(models.Model):
     user = models.OneToOneField(User, blank=True, null=True ,on_delete=models.CASCADE)
     friends = models.ManyToManyField('self', blank=True)

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Welcome {{profile.user.username}}</h1>
+    <h2>Friend list</h2>
+    <ul>
+    {% for friend in profile.friends.all %}
+        <li><h3>{{friend}}</h3>
+            <form action="{% url 'send-message-to-friend' %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-primary" type="submit" value="Send message">
+                <input type="hidden" name="friend" value="{{friend}}">
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+    <br>
+
+    <h2>Users</h2>
+    <ul>
+        {% for user in profiles %}
+            {% if user not in profile.friends.all and user != profile %}
+                <li><h3>{{user}}</h3>
+                    <form action="{% url 'send-friend-request' %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-warning" type="submit" value="Send friend request">
+                        <input type="hidden" name="user" value="{{user}}">
+                    </form>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <h2>Requests</h2>
+    <ul>
+        {% for i in friend_requests %}
+            <li><h3>{{i.from_profile}}</h3>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input class="btn btn-success" type="submit" value="Accept">
+                    <input type="hidden" name="accept" value="accept">
+                    <input class="btn btn-danger" type="submit" value="Decline">
+                    <input type="hidden" name="decline" value="decline">
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
