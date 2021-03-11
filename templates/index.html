@@ -27,13 +27,22 @@
     <ul>
         {% for user in profiles %}
             {% if user not in profile.friends.all and user != profile %}
-                <li><h3>{{user}}</h3>
-                    <form action="{% url 'send-friend-request' %}" method="post">
-                        {% csrf_token %}
-                        <input class="btn btn-warning" type="submit" value="Send friend request">
-                        <input type="hidden" name="user" value="{{user}}">
-                    </form>
-                </li>
+                    <li>
+                        <h3>{{user}}</h3>
+                        {% if not user in sent_request_list %}
+                            <form action="{% url 'send-friend-request' %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-warning" type="submit" value="Send friend request">
+                            <input type="hidden" name="user" value="{{user}}">
+                            </form>
+                        {% else %}
+                        <form action="{% url 'cancel-friend-request' %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-danger" type="submit" value="Cancel friend request">
+                            <input type="hidden" name="user" value="{{user}}">
+                        </form>
+                        {% endif %}
+                    </li>
             {% endif %}
         {% endfor %}
     </ul>
@@ -42,16 +51,20 @@
     <ul>
         {% for i in friend_requests %}
             <li><h3>{{i.from_profile}}</h3>
-                <form action="" method="post">
+                <form action="{% url 'response-friend-request' %}" method="post">
                     {% csrf_token %}
                     <input class="btn btn-success" type="submit" value="Accept">
-                    <input type="hidden" name="accept" value="accept">
+                    <input type="hidden" name="response" value="accept|{{i.from_profile}}">
+                </form>
+                <form action="{% url 'response-friend-request' %}" method="post">
+                    {% csrf_token %}
                     <input class="btn btn-danger" type="submit" value="Decline">
-                    <input type="hidden" name="decline" value="decline">
+                    <input type="hidden" name="response" value="decline|{{i.from_profile}}">
                 </form>
             </li>
         {% endfor %}
     </ul>
+
 
 </body>
 </html>
