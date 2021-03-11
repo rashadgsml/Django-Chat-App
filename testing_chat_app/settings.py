@@ -90,7 +90,7 @@ ASGI_APPLICATION = "testing_chat_app.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.testing_chat_app.RedisChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [os.environ.get("REDIS_URL", "redis://localhost:6379")]
         },
@@ -99,7 +99,7 @@ CHANNEL_LAYERS = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django_redis.testing_chat_app.RedisCache',
+        'BACKEND': 'django_redis.core.RedisCache',
         'LOCATION': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
