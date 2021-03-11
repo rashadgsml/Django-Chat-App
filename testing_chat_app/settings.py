@@ -100,7 +100,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.testing_chat_app.RedisCache',
-        'LOCATION': [(os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        'LOCATION': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
