@@ -26,7 +26,7 @@ SECRET_KEY = 'un4&3%lgnzax+j@j=a56g48t_%-mz&cxb+p4dv893e3fp_1+(+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '192.168.0.121', 'hidden-mountain-73672.herokuapp.com','127.0.0.1']
 
 
 # Application definition
@@ -90,12 +90,23 @@ ASGI_APPLICATION = "testing_chat_app.asgi.application"
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'BACKEND': 'channels_redis.testing_chat_app.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [(os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         },
     },
 }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.testing_chat_app.RedisCache',
+        'LOCATION': [(os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
+}
+
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
