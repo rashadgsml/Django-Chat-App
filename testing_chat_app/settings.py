@@ -92,7 +92,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.testing_chat_app.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+            "hosts": [(os.environ.get('REDIS_URL', 'redis://localhost:6379')]
         },
     },
 }
