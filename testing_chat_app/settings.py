@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'testing_chat_app.wsgi.application'
 ASGI_APPLICATION = "testing_chat_app.asgi.application"
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.testing_chat_app.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [(os.environ.get('REDIS_URL', 'redis://localhost:6379')]
+    "default": {
+        "BACKEND": "channels_redis.testing_chat_app.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_URL", "redis://localhost:6379")]
         },
     },
 }
