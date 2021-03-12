@@ -10,8 +10,7 @@ from django.conf.urls import url
 # Fetch Django ASGI application early to ensure AppRegistry is populated
 # before importing consumers and AuthMiddlewareStack that may import ORM
 # models.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testing_chat_app.settings")
-
+os.environ['DJANGO_SETTINGS_MODULE'] = 'testing_chat_app.settings'
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
