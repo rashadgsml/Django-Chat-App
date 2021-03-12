@@ -1,9 +1,11 @@
+from django.core.asgi import get_asgi_application
+
 import chat.routing
 import os
 import django
 
 from django.conf.urls import url
-from django.core.asgi import get_asgi_application
+
 
 # Fetch Django ASGI application early to ensure AppRegistry is populated
 # before importing consumers and AuthMiddlewareStack that may import ORM
