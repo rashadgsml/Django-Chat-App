@@ -1,5 +1,6 @@
 import chat.routing
 import os
+import django
 
 from django.conf.urls import url
 from django.core.asgi import get_asgi_application
@@ -12,7 +13,7 @@ django_asgi_app = get_asgi_application()
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-
+django.setup()
 application = ProtocolTypeRouter({
     # Django's ASGI application to handle traditional HTTP requests
     "http": django_asgi_app,
