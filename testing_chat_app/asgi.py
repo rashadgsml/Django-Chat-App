@@ -1,5 +1,5 @@
 from django.core.asgi import get_asgi_application
-
+django_asgi_app = get_asgi_application()
 import chat.routing
 import os
 import django
@@ -11,7 +11,7 @@ from django.conf.urls import url
 # before importing consumers and AuthMiddlewareStack that may import ORM
 # models.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testing_chat_app.settings")
-django_asgi_app = get_asgi_application()
+
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
