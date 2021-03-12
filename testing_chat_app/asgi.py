@@ -3,7 +3,7 @@ from chat.routing import websocket_urlpatterns
 import os
 import django
 
-from django.conf.urls import url
+from django.conf.urls import re_path
 
 
 # Fetch Django ASGI application early to ensure AppRegistry is populated
@@ -12,6 +12,8 @@ from django.conf.urls import url
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
+
+from chat.consumers import ChatConsumer
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'testing_chat_app.settings'
 django.setup()
@@ -22,8 +24,8 @@ application = ProtocolTypeRouter({
 
     # WebSocket chat handler
     "websocket": AuthMiddlewareStack(
-        URLRouter(
-            websocket_urlpatterns
-        )
+        URLRouter([
+            re_path(r'ws/chat/(?P<room_name>\w+)/$', ChatConsumer.as_asgi()),
+        ])
     ),
 })
