@@ -15,7 +15,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 
 from chat.consumers import ChatConsumer
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'testing_chat_app.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testing_chat_app.settings")
 django.setup()
 
 application = ProtocolTypeRouter({
