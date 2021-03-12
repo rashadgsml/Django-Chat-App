@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'un4&3%lgnzax+j@j=a56g48t_%-mz&cxb+p4dv893e3fp_1+(+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '192.168.0.121', 'hidden-mountain-73672.herokuapp.com','127.0.0.1']
 
