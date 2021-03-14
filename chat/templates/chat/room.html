@@ -130,13 +130,25 @@
     var roomName = {{ room_name }}
 	var username = {{ username }};
 
-    const chatSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/chat/'
-        + roomName
-        + '/'
-    );
+    var loc = window.location
+	var wsStart = "ws://"
+	if (loc.protocol == "https:"){
+		wsStart = "wss://"
+		}
+
+	var webSocketEndpoint =  wsStart + loc.host + '/ws/chat/' +
+		roomName +
+		'/'
+
+	var chatSocket = new WebSocket(webSocketEndpoint)
+	
+	//const chatSocket = new WebSocket(
+    //    'ws://'
+    //    + window.location.host
+    //    + '/ws/chat/'
+    //    + roomName
+    //    + '/'
+    //);
 
 	chatSocket.onopen = function(e){
 		fetchMessages();
@@ -195,7 +207,7 @@
 	function fetchMessages(){
 		chatSocket.send(JSON.stringify({'command':'fetch_messages','room_name':roomName}));
 	}
-	
+
 	function createMessage(data){
 		var author = data['author'];
         var msgListTag = document.createElement('li')

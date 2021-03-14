@@ -90,7 +90,7 @@ def send_message_to_friend(request):
     room.participants.add(profile)
     room.participants.add(friend)
     return redirect('chat:room', room_name=room.room_name)
-    
+
 def get_random_value():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
 
