@@ -1,18 +1,36 @@
 from django.shortcuts import render, redirect, reverse
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.safestring import mark_safe
 from .models import Message, Chat, Profile, FriendRequest
-import json
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.dispatch import receiver 
 from django.contrib.auth import get_user_model
 import random
 import string
+import json
 
 User = get_user_model()
+
+
+@receiver(user_logged_in)
+def got_online(sender, user, request, **kwargs):
+    print('online')   
+    user.profile.status = 'online'
+    user.profile.save()
+
+@receiver(user_logged_out)
+def got_offline(sender, user, request, **kwargs):
+    print('offline') 
+    user.profile.status = 'offline'
+    user.profile.save()
 
 @login_required
 def index(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     profiles = Profile.objects.all()
+    profile.status = 'online'
+    profile.save()
     friend_requests = profile.friend_requests.all().filter(to_profile=profile)
     sent_request_list = []
     for i in profile.friend_requests.all():
@@ -95,8 +113,19 @@ def get_random_value():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
 
 @login_required
+def remove_friend(request):
+    friend_data = request.POST.get('friend')
+    friend_user = User.objects.get(username = friend_data)
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    friend = Profile.objects.get(user=friend_user)
+    profile.friends.remove(friend)
+    return redirect('index')
+
+@login_required
 def chat_index(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
+    profile.status = 'online'
+    profile.save()
     rooms = Chat.objects.filter(participants=profile)
     return render(request, 'chat/index2.html', {
             'username' : mark_safe(json.dumps(request.user.username)),
@@ -109,6 +138,8 @@ def room(request, room_name):
     chat, created = Chat.objects.get_or_create(room_name=room_name)
     profile, created = Profile.objects.get_or_create(user=request.user)
     rooms = Chat.objects.filter(participants=profile)
+    profile.status = 'online'
+    profile.save()
     participants = ''
     for i in chat.participants.all():
         if profile != i:
@@ -125,6 +156,4 @@ def room(request, room_name):
     else:
         # TODO: message
         return redirect('chat:chat_index')
-
-
 

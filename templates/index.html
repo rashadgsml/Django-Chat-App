@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    
     <title>Home Page</title>
 </head>
 <body>
@@ -16,6 +17,11 @@
             <form action="{% url 'send-message-to-friend' %}" method="post">
                 {% csrf_token %}
                 <input class="btn btn-primary" type="submit" value="Send message">
+                <input type="hidden" name="friend" value="{{friend}}">
+            </form>
+            <form action="{% url 'remove-friend' %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="Remove friend">
                 <input type="hidden" name="friend" value="{{friend}}">
             </form>
         </li>
@@ -65,6 +71,46 @@
         {% endfor %}
     </ul>
 
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    
+
+    window.onbeforeunload = function() {
+        var profile_id = "{{profile.id}}";
+        var url = `http://localhost:8000/api/profile-detail/${profile_id}`
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body:JSON.stringify({'status':'offline'})
+        })
+        .then((response) => response.json())
+        .then(data => console.log(data));
+    }
+    
+    url = `http://localhost:8000/api/profile-list`
+    fetch(url)
+    .then((response) => response.json())
+    .then(data => console.log(data));
+</script>
 
 </body>
 </html>

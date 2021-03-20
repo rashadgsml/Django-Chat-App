@@ -17,9 +17,9 @@ class ChatConsumer(WebsocketConsumer):
             'messages': self.messages_to_json(messages)
         }
         profile = Profile.objects.get(user=self.scope["user"])
+        profile.status = 'online'
         rooms = Chat.objects.filter(participants=profile)
         content['rooms'] = self.rooms_to_json(rooms)
-        # print(data['room_name'])
         self.send_message(content)
     
     def new_message(self, data):
@@ -40,9 +40,6 @@ class ChatConsumer(WebsocketConsumer):
         profile = Profile.objects.get(user=self.scope["user"])
         rooms = Chat.objects.filter(participants=profile)
         content['rooms'] = self.rooms_to_json(rooms)
-        # print(self.rooms_to_json(rooms))
-        # print('new')
-        # print(data)
         return self.send_chat_message(content)
 
     def messages_to_json(self, messages):
@@ -81,31 +78,31 @@ class ChatConsumer(WebsocketConsumer):
     def participant_to_json(self, participant):
         return {
             'username': participant.user.username,
+            'status': participant.status
         }
 
     commands = {
         'fetch_messages': fetch_messages,
-        'new_message': new_message
+        'new_message': new_message,
     }
 
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
-        
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
-            self.channel_name
+            self.channel_name,
         )
         self.accept()
-
+        
     def disconnect(self, close_code):
         # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
         )
-
+        
     # Receive message from WebSocket
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -129,3 +126,4 @@ class ChatConsumer(WebsocketConsumer):
         message = event['message']
         # Send message to WebSocket
         self.send(text_data=json.dumps(message))
+

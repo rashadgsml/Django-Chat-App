@@ -18,6 +18,7 @@ Django==3.1.7
 django-allauth==0.44.0
 django-crispy-forms==1.11.1
 django-heroku==0.3.1
+djangorestframework==3.12.2
 gunicorn==20.0.4
 hiredis==1.1.0
 hyperlink==21.0.0

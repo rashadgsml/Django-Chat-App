@@ -59,7 +59,7 @@
 						<li class="contact" id="id-{{room.id}}-submit">
 						{% endif %}
 						<div class="wrap">
-							<span class="contact-status busy"></span>
+							<span id="status-{{room.id}}" class="contact-status busy"></span>
 							<img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
 							<div class="meta">
 								{% if room.participants.all.count == 2 %}
@@ -156,30 +156,48 @@
 
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
+		var request_user = {{username}};
         if (data['command'] === 'messages'){
 			for (let i=data['messages'].length-1; i>=0; i--){
 				createMessage(data['messages'][i]);
 			}
-			{% for room in rooms %}
-				document.getElementById("preview-{{room.id}}").innerHTML = (`{{room.messages.all.last.author}}: {{room.messages.all.last.content}}`);
-			{% endfor %}
-			
+			for (let i=0; i<data['rooms'].length; i++){
+				document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
+				for (let j=0; j<data['rooms'][i]['participants'].length; j++){
+					if (data['rooms'][i]['participants'][j]['username'] !== request_user){
+						document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`;
+					}
+				}
+			}
 			updateScroll();
 		}
 		else if (data['command'] === 'new_message'){
 			createMessage(data['message']);
+			try{
 			for (let i=0; i<data['rooms'].length; i++){
 				document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
+				for (let j=0; j<data['rooms'][i]['participants'].length; j++){
+					if (data['rooms'][i]['participants'][j]['username'] !== request_user){
+						document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`
+					}
+				}
+			}
+			}
+			catch{
+				console.log('error');
 			}
 			updateScroll();
+			
 		}
+
 		{% for i in rooms %}
 			document.querySelector('#id-{{i.id}}-submit').onclick = function(e) {
 				window.location.pathname = '/chat/' + '{{i.room_name}}' + '/';
 			};
 		{% endfor %}
-    };
 
+    };
+	
     chatSocket.onclose = function(e) {
         console.error('Chat socket closed unexpectedly');
     };
@@ -198,8 +216,8 @@
         chatSocket.send(JSON.stringify({
             'message': message,
 			'command': 'new_message',
-			'from' : username,
-			'room_name':roomName
+			'from': username,
+			'room_name': roomName
         }));
         messageInputDom.value = '';
     };

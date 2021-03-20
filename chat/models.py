@@ -13,12 +13,15 @@ class FriendRequest(models.Model):
         return self.from_profile.user.username
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, blank=True, null=True ,on_delete=models.CASCADE)
+    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE)
     friends = models.ManyToManyField('self', blank=True)
     friend_requests = models.ManyToManyField(FriendRequest, blank=True)
+    status = models.CharField(max_length=15, default='offline')
 
     def __str__(self):
         return self.user.username
+    
+    
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -53,3 +56,7 @@ class Chat(models.Model):
 
     def __str__(self):
         return self.room_name
+
+
+
+
