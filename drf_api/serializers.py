@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from chat.models import Profile, Chat
+from chat.models import Profile, Chat, Notification
 from django.contrib.auth.models import User
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -20,3 +20,9 @@ class ChatSerializer(serializers.ModelSerializer):
             'id','room_name','participants','messages'
         )
 
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = (
+            'id', 'to_profile', 'message','is_read'
+            )

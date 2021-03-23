@@ -11,7 +11,15 @@
 
 <!DOCTYPE html><html class=''>
 {% load static %}
-<head><script src='//production-assets.codepen.io/assets/editor/live/console_runner-079c09a0e3b9ff743e39ee2d5637b9216b3545af0de366d4b9aad9dc87e26bfd.js'></script><script src='//production-assets.codepen.io/assets/editor/live/events_runner-73716630c22bbc8cff4bd0f07b135f00a0bdc5d14629260c3ec49e5606f98fdd.js'></script><script src='//production-assets.codepen.io/assets/editor/live/css_live_reload_init-2c0dc5167d60a5af3ee189d570b1835129687ea2a61bee3513dee3a50c115a77.js'></script><meta charset='UTF-8'><meta name="robots" content="noindex"><link rel="shortcut icon" type="image/x-icon" href="//production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" /><link rel="mask-icon" type="" href="//production-assets.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" /><link rel="canonical" href="https://codepen.io/emilcarlsson/pen/ZOQZaV?limit=all&page=74&q=contact+" />
+<head>
+<!-- <script src='//production-assets.codepen.io/assets/editor/live/console_runner-079c09a0e3b9ff743e39ee2d5637b9216b3545af0de366d4b9aad9dc87e26bfd.js'></script>
+<script src='//production-assets.codepen.io/assets/editor/live/events_runner-73716630c22bbc8cff4bd0f07b135f00a0bdc5d14629260c3ec49e5606f98fdd.js'></script>
+<script src='//production-assets.codepen.io/assets/editor/live/css_live_reload_init-2c0dc5167d60a5af3ee189d570b1835129687ea2a61bee3513dee3a50c115a77.js'></script>
+<meta charset='UTF-8'><meta name="robots" content="noindex">
+<link rel="shortcut icon" type="image/x-icon" href="//production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" />
+<link rel="mask-icon" type="" href="//production-assets.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" />
+<link rel="canonical" href="https://codepen.io/emilcarlsson/pen/ZOQZaV?limit=all&page=74&q=contact+" /> -->
+
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet' type='text/css'>
 
 <script src="https://use.typekit.net/hoy3lrg.js"></script>
@@ -120,138 +128,17 @@
 </div>
 {{ room_name|json_script:"room-name" }}
 
-<script src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script><script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<!-- <script src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script><script src='https://code.jquery.com/jquery-2.2.4.min.js'></script> -->
 <script>
 	$(window).on("load",function(){
 		$(".loader-wrapper").fadeOut("slow");
 	  });
 </script>
 <script>
-    var roomName = {{ room_name }}
+	var roomName = {{ room_name }};
 	var username = {{ username }};
-
-    var loc = window.location
-	var wsStart = "ws://"
-	if (loc.protocol == "https:"){
-		wsStart = "wss://"
-		}
-
-	var webSocketEndpoint =  wsStart + loc.host + '/ws/chat/' +
-		roomName +
-		'/'
-
-	var chatSocket = new WebSocket(webSocketEndpoint)
-	
-	//const chatSocket = new WebSocket(
-    //    'ws://'
-    //    + window.location.host
-    //    + '/ws/chat/'
-    //    + roomName
-    //    + '/'
-    //);
-
-	chatSocket.onopen = function(e){
-		fetchMessages();
-	}
-
-    chatSocket.onmessage = function(e) {
-        var data = JSON.parse(e.data);
-		var request_user = {{username}};
-        if (data['command'] === 'messages'){
-			for (let i=data['messages'].length-1; i>=0; i--){
-				createMessage(data['messages'][i]);
-			}
-			for (let i=0; i<data['rooms'].length; i++){
-				document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
-				for (let j=0; j<data['rooms'][i]['participants'].length; j++){
-					if (data['rooms'][i]['participants'][j]['username'] !== request_user){
-						document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`;
-					}
-				}
-			}
-			updateScroll();
-		}
-		else if (data['command'] === 'new_message'){
-			createMessage(data['message']);
-			try{
-			for (let i=0; i<data['rooms'].length; i++){
-				document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
-				for (let j=0; j<data['rooms'][i]['participants'].length; j++){
-					if (data['rooms'][i]['participants'][j]['username'] !== request_user){
-						document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`
-					}
-				}
-			}
-			}
-			catch{
-				console.log('error');
-			}
-			updateScroll();
-			
-		}
-
-		{% for i in rooms %}
-			document.querySelector('#id-{{i.id}}-submit').onclick = function(e) {
-				window.location.pathname = '/chat/' + '{{i.room_name}}' + '/';
-			};
-		{% endfor %}
-
-    };
-	
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-    };
-
-    document.querySelector('#chat-message-input').focus();
-    document.querySelector('#chat-message-input').onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            document.querySelector('#chat-message-submit').click();
-        }
-    };
-
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        const messageInputDom = document.querySelector('#chat-message-input');
-        const message = messageInputDom.value;
-		
-        chatSocket.send(JSON.stringify({
-            'message': message,
-			'command': 'new_message',
-			'from': username,
-			'room_name': roomName
-        }));
-        messageInputDom.value = '';
-    };
-
-	function fetchMessages(){
-		chatSocket.send(JSON.stringify({'command':'fetch_messages','room_name':roomName}));
-	}
-
-	function createMessage(data){
-		var author = data['author'];
-        var msgListTag = document.createElement('li')
-        var imgTag = document.createElement('img');
-        var pTag = document.createElement('p');
-		pTag.textContent = data.content;
-        imgTag.src = "http://emilcarlsson.se/assets/harveyspecter.png";
-
-		if (author === username){
-			msgListTag.className = 'sent';
-		}
-		else{
-			msgListTag.className = 'replies';
-		}
-		msgListTag.appendChild(imgTag);
-        msgListTag.appendChild(pTag);
-        document.querySelector('#chat-log').appendChild(msgListTag);
-	}
-
-	function updateScroll(){
-		var element = document.getElementById("chat-area");
-		element.scrollTop = element.scrollHeight;
-	}
-
 </script>
-
+<script src="{% static 'js/chatSocket.js' %}"></script>
 <script>
 	$(".messages").animate({ scrollTop: $(document).height() }, "fast");
 

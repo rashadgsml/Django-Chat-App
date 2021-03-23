@@ -1,14 +1,16 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    
+    <link rel="stylesheet" href="{% static 'css/notification.css' %}">
     <title>Home Page</title>
 </head>
 <body>
+    <p>Status: <strong id="status">null</strong></p>
     <h1>Welcome {{profile.user.username}}</h1>
     <h2>Friend list</h2>
     <ul>
@@ -48,6 +50,7 @@
                             <input type="hidden" name="user" value="{{user}}">
                         </form>
                         {% endif %}
+                        
                     </li>
             {% endif %}
         {% endfor %}
@@ -71,6 +74,8 @@
         {% endfor %}
     </ul>
 
+<script src="{% static 'js/notificationSocket.js' %}"></script>
+<script src="{% static 'js/notification.js' %}"></script>
 <script>
     function getCookie(name) {
         let cookieValue = null;
@@ -106,10 +111,20 @@
         .then(data => console.log(data));
     }
     
-    url = `http://localhost:8000/api/profile-list`
-    fetch(url)
-    .then((response) => response.json())
-    .then(data => console.log(data));
+    //function liveStatus(){
+    //    const statusView = document.getElementById('status');
+      //  setInterval(function (){
+        //    url = `http://localhost:8000/api/profile-detail/5`
+          //  fetch(url)
+            //.then((response) => response.json())
+          //  .then(function (data){
+           //     statusView.textContent = data.status;
+           // });   
+       // }, 2000);
+    //}
+    //document.addEventListener('DOMContentLoaded', function (){
+     //   liveStatus();
+    //});
 </script>
 
 </body>

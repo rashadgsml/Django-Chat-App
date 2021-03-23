@@ -9,9 +9,14 @@ from django.contrib.auth import get_user_model
 import random
 import string
 import json
+import requests
 
 User = get_user_model()
 
+# def get_profiles_requests():
+#     url = 'http://127.0.0.1:8000/api/profile-list/?format=json'
+#     data = requests.get(url).json()
+#     print(data)
 
 @receiver(user_logged_in)
 def got_online(sender, user, request, **kwargs):
@@ -135,6 +140,7 @@ def chat_index(request):
 
 @login_required
 def room(request, room_name):
+    Chat.delete_room()
     chat, created = Chat.objects.get_or_create(room_name=room_name)
     profile, created = Profile.objects.get_or_create(user=request.user)
     rooms = Chat.objects.filter(participants=profile)

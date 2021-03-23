@@ -2,10 +2,59 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import Message, Chat, Profile
+from .models import Message, Chat, Profile, Notification
 from django.contrib.auth import get_user_model
+from channels.layers import get_channel_layer
+
 
 User = get_user_model()
+
+class NotificationConsumer(WebsocketConsumer):
+
+    def notify(self, event):
+        message = event['message']
+        if self.scope["user"].username != message['from']:
+            self.send(text_data=json.dumps(message))
+
+    def connect(self):
+        async_to_sync(self.channel_layer.group_add)(
+            'notifications',
+            self.channel_name,
+        )
+        self.accept()
+
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)(
+            'notifications',
+            self.channel_name
+        )
+
+    def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        async_to_sync(self.channel_layer.group_send)(
+            'notifications',
+            {
+                'type': 'notify',
+                'message': text_data_json,
+            }
+        )
+
+    def notifications_to_json(self,notifications):
+        result = []
+        for notification in notifications:
+            result.append(self.notification_to_json(notification))
+
+        return result
+
+    def notification_to_json(self,notification):
+        return {
+            'to_profile': notification.to_profile.user.username,
+            'from_profile': notification.message.author.username,
+            'message': notification.message.content,
+            'timestamp': str(notification.message.timestamp),
+            'is_read': notification.is_read
+        }
+        
 
 class ChatConsumer(WebsocketConsumer):
 
@@ -40,6 +89,10 @@ class ChatConsumer(WebsocketConsumer):
         profile = Profile.objects.get(user=self.scope["user"])
         rooms = Chat.objects.filter(participants=profile)
         content['rooms'] = self.rooms_to_json(rooms)
+        for i in chat.participants.all():
+            if i != profile:
+                to_profile = i
+        notification = Notification.objects.create(to_profile=to_profile, message=message)
         return self.send_chat_message(content)
 
     def messages_to_json(self, messages):
@@ -126,4 +179,5 @@ class ChatConsumer(WebsocketConsumer):
         message = event['message']
         # Send message to WebSocket
         self.send(text_data=json.dumps(message))
+
 

@@ -54,8 +54,18 @@ class Chat(models.Model):
     def last_10_messages(self):
         return self.messages.all().order_by('-timestamp').all()[:10]
 
+    def delete_room():
+        for i in Chat.objects.all():
+            if i.participants.count() == 1:
+                i.delete()
+
     def __str__(self):
         return self.room_name
+
+class Notification(models.Model):
+    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    is_read = models.BooleanField(default=False)
 
 
 
