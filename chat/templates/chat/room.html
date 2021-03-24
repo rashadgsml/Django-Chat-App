@@ -60,7 +60,7 @@
 		</div>
 		<div id="contacts">
 			<ul id="rooms">
-				{% for room in rooms %}
+				<!-- {% for room in rooms %}
 						{% if normal_room_name == room.room_name %}
 						<li class="contact active" id="id-{{room.id}}-submit">
 						{% else %}
@@ -83,7 +83,7 @@
 							</div>
 						</div>
 					</li>
-				{% endfor %}
+				{% endfor %} -->
 			</ul>
 		</div>
 		<div id="bottom-bar">
@@ -137,6 +137,8 @@
 <script>
 	var roomName = {{ room_name }};
 	var username = {{ username }};
+	var currentRoomName = '{{ normal_room_name }}';
+	var profile_username = '{{ normal_username }}'
 </script>
 <script src="{% static 'js/chatSocket.js' %}"></script>
 <script>

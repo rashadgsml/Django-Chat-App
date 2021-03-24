@@ -17,6 +17,9 @@ class NotificationConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps(message))
 
     def connect(self):
+        profile = Profile.objects.get(user=self.scope["user"])
+        profile.status = 'online'
+        profile.save()
         async_to_sync(self.channel_layer.group_add)(
             'notifications',
             self.channel_name,
@@ -24,6 +27,9 @@ class NotificationConsumer(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
+        profile = Profile.objects.get(user=self.scope["user"])
+        profile.status = 'offline'
+        profile.save()
         async_to_sync(self.channel_layer.group_discard)(
             'notifications',
             self.channel_name

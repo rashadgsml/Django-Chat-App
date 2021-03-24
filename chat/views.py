@@ -20,13 +20,11 @@ User = get_user_model()
 
 @receiver(user_logged_in)
 def got_online(sender, user, request, **kwargs):
-    print('online')   
     user.profile.status = 'online'
     user.profile.save()
 
 @receiver(user_logged_out)
 def got_offline(sender, user, request, **kwargs):
-    print('offline') 
     user.profile.status = 'offline'
     user.profile.save()
 
@@ -143,7 +141,7 @@ def room(request, room_name):
     Chat.delete_room()
     chat, created = Chat.objects.get_or_create(room_name=room_name)
     profile, created = Profile.objects.get_or_create(user=request.user)
-    rooms = Chat.objects.filter(participants=profile)
+    # rooms = Chat.objects.filter(participants=profile)
     profile.status = 'online'
     profile.save()
     participants = ''
@@ -156,7 +154,6 @@ def room(request, room_name):
             'username' : mark_safe(json.dumps(request.user.username)),
             'normal_room_name': room_name,
             'normal_username' : request.user.username,
-            'rooms': rooms,
             'participants':participants[1:]
         })
     else:
