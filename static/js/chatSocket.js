@@ -43,27 +43,13 @@ chatSocket.onopen = function(e){
 
 chatSocket.onmessage = function(e) {
     var data = JSON.parse(e.data);
-    
     var request_user = username;
+    
     if (data['command'] === 'messages'){
         buildContacts(data['rooms']);
         for (let i=data['messages'].length-1; i>=0; i--){
             createMessage(data['messages'][i]);
         }
-        
-            for (let i=0; i<data['rooms'].length; i++){
-                try{
-                document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
-                    }
-                catch{
-                    console.error('error');
-                }
-                for (let j=0; j<data['rooms'][i]['participants'].length; j++){
-                    if (data['rooms'][i]['participants'][j]['username'] !== request_user){
-                        document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`;
-                    }
-                }
-            }
         updateScroll();
     }
     else if (data['command'] === 'new_message'){
@@ -88,12 +74,12 @@ chatSocket.onmessage = function(e) {
         updateScroll();
     }
 
-    for (let i=0; i<data['rooms'].length; i++){
-        document.querySelector(`#id-${data['rooms'][i]['room_id']}-submit`).onclick = function(e) {
-            window.location.pathname = `/chat/${data['rooms'][i]['room_name']}/`;
-        };
-    }
-
+        $('#search-input').on('keyup', function(){
+            var value = $(this).val();
+            var searched_data = searchContact(value, data['rooms'])
+            buildContacts(searched_data)
+        })
+    
 };
 
 chatSocket.onclose = function(e) {
@@ -125,7 +111,7 @@ function fetchMessages(){
 }
 
 function buildContacts(rooms){
-    
+    $('#rooms').empty();
     for (let i=0; i<rooms.length; i++){
         var contactListTag = document.createElement('li')
         contactListTag.className = 'contact'
@@ -147,7 +133,7 @@ function buildContacts(rooms){
 
         previewPTag = document.createElement('p')
         previewPTag.className = 'preview'
-
+        
         contactListTag.id = `id-${rooms[i]['room_id']}-submit`
         if (currentRoomName == rooms[i]['room_name']){
             contactListTag.className = 'contact active'
@@ -174,6 +160,25 @@ function buildContacts(rooms){
         contactListTag.appendChild(divWrap)
         document.querySelector('#rooms').appendChild(contactListTag);
     }
+    for (let i=0; i<rooms.length; i++){
+        document.querySelector(`#id-${rooms[i]['room_id']}-submit`).onclick = function(e) {
+            window.location.pathname = `/chat/${rooms[i]['room_name']}/`;
+        };
+    }
+    var request_user = username;
+    for (let i=0; i<rooms.length; i++){
+        try{
+        document.getElementById(`preview-${rooms[i]['room_id']}`).innerHTML = (`${rooms[i]['messages'][rooms[i]['messages'].length - 1]['author']}: ${rooms[i]['messages'][rooms[i]['messages'].length - 1]['content']}`);
+            }
+        catch{
+            console.error('error');
+        }
+        for (let j=0; j<rooms[i]['participants'].length; j++){
+            if (rooms[i]['participants'][j]['username'] !== request_user){
+                document.getElementById(`status-${rooms[i]['room_id']}`).className = `contact-status ${rooms[i]['participants'][j]['status']}`;
+            }
+        }
+    }
 }
 
 function createMessage(data){
@@ -198,6 +203,22 @@ function createMessage(data){
 function updateScroll(){
     var element = document.getElementById("chat-area");
     element.scrollTop = element.scrollHeight;
+}
+
+
+
+function searchContact(value, data){
+    var filteredData = []
+
+    for (var i=0; i<data.length; i++){
+        value = value.toLowerCase()
+        var name = data[i]['to_profile'].toLowerCase()
+
+        if(name.includes(value)){
+            filteredData.push(data[i])
+        }
+    }
+    return filteredData
 }
 
 var webSocketEndpoint =  wsStart + loc.host

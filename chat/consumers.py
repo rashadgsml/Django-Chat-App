@@ -13,7 +13,6 @@ class NotificationConsumer(WebsocketConsumer):
 
     def notify(self, event):
         message = event['message']
-        print(self.scope["user"].username)
         if self.scope["user"].username==message['to']:
             self.send(text_data=json.dumps(message))
 
@@ -121,9 +120,13 @@ class ChatConsumer(WebsocketConsumer):
         return result
         
     def room_to_json(self, room):
+        for i in room.participants.all():
+            if i.user != self.scope["user"]:
+                to_profile = i.user.username
         return {
             'room_id': room.id,
             'room_name': room.room_name,
+            'to_profile': to_profile,
             'participants': self.participants_to_json(room.participants.all()),
             'messages': self.messages_to_json(room.messages.all())
         }
