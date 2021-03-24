@@ -73,6 +73,9 @@ chatSocket.onmessage = function(e) {
             document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
             for (let j=0; j<data['rooms'][i]['participants'].length; j++){
                 if (data['rooms'][i]['participants'][j]['username'] !== request_user){
+                    if(data['rooms'][i]['room_name'] == roomName){
+                    to_profile = data['rooms'][i]['participants'][j]['username'];
+                    }
                     document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`
                 }
             }
@@ -81,7 +84,7 @@ chatSocket.onmessage = function(e) {
         catch{
             console.log('error');
         }
-        notificationSocket.send(JSON.stringify({'from':data['message']['author'],'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
+        notificationSocket.send(JSON.stringify({'from':data['message']['author'],'to':to_profile,'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
         updateScroll();
     }
 

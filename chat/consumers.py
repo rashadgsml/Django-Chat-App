@@ -13,7 +13,8 @@ class NotificationConsumer(WebsocketConsumer):
 
     def notify(self, event):
         message = event['message']
-        if self.scope["user"].username != message['from']:
+        print(self.scope["user"].username)
+        if self.scope["user"].username==message['to']:
             self.send(text_data=json.dumps(message))
 
     def connect(self):
