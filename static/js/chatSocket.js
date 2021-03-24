@@ -60,8 +60,9 @@ chatSocket.onmessage = function(e) {
             for (let j=0; j<data['rooms'][i]['participants'].length; j++){
                 if (data['rooms'][i]['participants'][j]['username'] !== request_user){
                     if(data['rooms'][i]['room_name'] == roomName){
-                    to_profile = data['rooms'][i]['participants'][j]['username'];
+                    to_profile = data['rooms'][i]['to_profile'];
                     }
+                    
                     document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`
                 }
             }
