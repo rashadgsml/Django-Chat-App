@@ -98,7 +98,6 @@ class ChatConsumer(WebsocketConsumer):
         for i in chat.participants.all():
             if i != profile:
                 to_profile = i
-        notification = Notification.objects.create(to_profile=to_profile, message=message)
         return self.send_chat_message(content)
 
     def messages_to_json(self, messages):
