@@ -94,7 +94,9 @@ class ChatConsumer(WebsocketConsumer):
         chat.messages.add(message)
         profile = Profile.objects.get(user=self.scope["user"])
         rooms = Chat.objects.filter(participants=profile)
+        all_rooms = Chat.objects.all()
         content['rooms'] = self.rooms_to_json(rooms)
+        content['all_rooms'] = self.rooms_to_json(all_rooms)
         for i in chat.participants.all():
             if i != profile:
                 to_profile = i

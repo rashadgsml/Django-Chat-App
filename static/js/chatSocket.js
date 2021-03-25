@@ -55,6 +55,7 @@ chatSocket.onmessage = function(e) {
         for (let i=data['messages'].length-1; i>=0; i--){
             createMessage(data['messages'][i]);
         }
+        
         updateScroll();
     }
     
@@ -68,7 +69,6 @@ chatSocket.onmessage = function(e) {
                     if(data['rooms'][i]['room_name'] == roomName){
                     to_profile = data['rooms'][i]['to_profile'];
                     }
-                    
                     document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`
                 }
             }
@@ -78,11 +78,22 @@ chatSocket.onmessage = function(e) {
             console.log('error');
         }
         notificationSocket.send(JSON.stringify({'from':data['message']['author'],'to':to_profile,'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
+        var newArray = []
+        for (i in data['all_rooms']){
+            for (j in data['all_rooms'][i]['participants']){
+                if(request_user == data['all_rooms'][i]['participants'][j]['username']){
+                    newArray.push(data['all_rooms'][i])
+                }
+            }
+        }
+        $('#search-input').on('keyup', function(){
+            var value = $(this).val();
+            var searched_data = searchContact(value, newArray)
+            buildContacts(searched_data)
+        })
         updateScroll();
     }
 
-        
-    
 };
 
 chatSocket.onclose = function(e) {
@@ -171,7 +182,7 @@ function buildContacts(rooms){
     var request_user = username;
     for (let i=0; i<rooms.length; i++){
         try{
-        document.getElementById(`preview-${rooms[i]['room_id']}`).innerHTML = (`${rooms[i]['messages'][rooms[i]['messages'].length - 1]['author']}: ${rooms[i]['messages'][rooms[i]['messages'].length - 1]['content']}`);
+            document.getElementById(`preview-${rooms[i]['room_id']}`).innerHTML = (`${rooms[i]['messages'][rooms[i]['messages'].length - 1]['author']}: ${rooms[i]['messages'][rooms[i]['messages'].length - 1]['content']}`);
             }
         catch{
             console.error('error');
