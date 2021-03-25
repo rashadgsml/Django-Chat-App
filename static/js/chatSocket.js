@@ -46,12 +46,18 @@ chatSocket.onmessage = function(e) {
     var request_user = username;
     
     if (data['command'] === 'messages'){
+        $('#search-input').on('keyup', function(){
+            var value = $(this).val();
+            var searched_data = searchContact(value, data['rooms'])
+            buildContacts(searched_data)
+        })
         buildContacts(data['rooms']);
         for (let i=data['messages'].length-1; i>=0; i--){
             createMessage(data['messages'][i]);
         }
         updateScroll();
     }
+    
     else if (data['command'] === 'new_message'){
         createMessage(data['message']);
         try{
@@ -75,11 +81,7 @@ chatSocket.onmessage = function(e) {
         updateScroll();
     }
 
-        $('#search-input').on('keyup', function(){
-            var value = $(this).val();
-            var searched_data = searchContact(value, data['rooms'])
-            buildContacts(searched_data)
-        })
+        
     
 };
 
