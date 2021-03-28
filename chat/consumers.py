@@ -92,14 +92,8 @@ class ChatConsumer(WebsocketConsumer):
         }
         chat = Chat.objects.get(room_name=data['room_name'])
         chat.messages.add(message)
-        profile = Profile.objects.get(user=self.scope["user"])
-        rooms = Chat.objects.filter(participants=profile)
         all_rooms = Chat.objects.all()
-        content['rooms'] = self.rooms_to_json(rooms)
         content['all_rooms'] = self.rooms_to_json(all_rooms)
-        for i in chat.participants.all():
-            if i != profile:
-                to_profile = i
         return self.send_chat_message(content)
 
     def messages_to_json(self, messages):
@@ -122,13 +116,9 @@ class ChatConsumer(WebsocketConsumer):
         return result
         
     def room_to_json(self, room):
-        for i in room.participants.all():
-            if i.user != self.scope["user"]:
-                to_profile = i.user.username
         return {
             'room_id': room.id,
             'room_name': room.room_name,
-            'to_profile': to_profile,
             'participants': self.participants_to_json(room.participants.all()),
             'messages': self.messages_to_json(room.messages.all())
         }

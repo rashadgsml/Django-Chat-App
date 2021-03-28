@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from chat.models import Profile, Chat, Notification
+from chat.models import Profile, Chat, Notification, Message
 from django.contrib.auth.models import User
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -11,9 +11,19 @@ class ProfileSerializer(serializers.ModelSerializer):
             'id','user','friends','friend_requests','status'
         )
 
+class MessageSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source="author.username")
+    
+    class Meta:
+        model = Message
+        fields = (
+            'author','content','timestamp'
+        )
+
 class ChatSerializer(serializers.ModelSerializer):
     participants = ProfileSerializer(many=True)
-
+    messages = MessageSerializer(many=True)
+    
     class Meta:
         model = Chat
         fields = (

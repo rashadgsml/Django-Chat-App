@@ -32,8 +32,6 @@ def got_offline(sender, user, request, **kwargs):
 def index(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     profiles = Profile.objects.all()
-    profile.status = 'online'
-    profile.save()
     friend_requests = profile.friend_requests.all().filter(to_profile=profile)
     sent_request_list = []
     for i in profile.friend_requests.all():
@@ -127,8 +125,6 @@ def remove_friend(request):
 @login_required
 def chat_index(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    profile.status = 'online'
-    profile.save()
     rooms = Chat.objects.filter(participants=profile)
     return render(request, 'chat/index2.html', {
             'username' : mark_safe(json.dumps(request.user.username)),
@@ -141,9 +137,6 @@ def room(request, room_name):
     Chat.delete_room()
     chat, created = Chat.objects.get_or_create(room_name=room_name)
     profile, created = Profile.objects.get_or_create(user=request.user)
-    # rooms = Chat.objects.filter(participants=profile)
-    profile.status = 'online'
-    profile.save()
     participants = ''
     for i in chat.participants.all():
         if profile != i:
@@ -154,7 +147,7 @@ def room(request, room_name):
             'username' : mark_safe(json.dumps(request.user.username)),
             'normal_room_name': room_name,
             'normal_username' : request.user.username,
-            'participants':participants[1:]
+            'participants':participants[1:],
         })
     else:
         # TODO: message

@@ -1,22 +1,3 @@
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-const csrftoken = getCookie('csrftoken');
-
-
-
 var loc = window.location
 var wsStart = "ws://"
 if (loc.protocol == "https:"){
@@ -44,7 +25,6 @@ chatSocket.onopen = function(e){
 chatSocket.onmessage = function(e) {
     var data = JSON.parse(e.data);
     var request_user = username;
-    
     if (data['command'] === 'messages'){
         $('#search-input').on('keyup', function(){
             var value = $(this).val();
@@ -60,38 +40,41 @@ chatSocket.onmessage = function(e) {
     }
     
     else if (data['command'] === 'new_message'){
-        createMessage(data['message']);
-        try{
-        for (let i=0; i<data['rooms'].length; i++){
-            document.getElementById(`preview-${data['rooms'][i]['room_id']}`).innerHTML = (`${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['author']}: ${data['rooms'][i]['messages'][data['rooms'][i]['messages'].length - 1]['content']}`);
-            for (let j=0; j<data['rooms'][i]['participants'].length; j++){
-                if (data['rooms'][i]['participants'][j]['username'] !== request_user){
-                    if(data['rooms'][i]['room_name'] == roomName){
-                    to_profile = data['rooms'][i]['to_profile'];
-                    }
-                    document.getElementById(`status-${data['rooms'][i]['room_id']}`).className = `contact-status ${data['rooms'][i]['participants'][j]['status']}`
-                }
-            }
+        if (data['message']['author'] != request_user){
+            createMessage(data['message']);
         }
-        }
-        catch{
-            console.log('error');
-        }
-        notificationSocket.send(JSON.stringify({'from':data['message']['author'],'to':to_profile,'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
-        var newArray = []
+        updateScroll();
+        var myRooms = []
         for (i in data['all_rooms']){
             for (j in data['all_rooms'][i]['participants']){
                 if(request_user == data['all_rooms'][i]['participants'][j]['username']){
-                    newArray.push(data['all_rooms'][i])
+                    myRooms.push(data['all_rooms'][i])
                 }
             }
         }
+        try{
+            for (let i=0; i<myRooms.length; i++){
+                document.getElementById(`preview-${myRooms[i]['room_id']}`).innerHTML = (`${myRooms[i]['messages'][myRooms[i]['messages'].length - 1]['author']}: ${myRooms[i]['messages'][myRooms[i]['messages'].length - 1]['content']}`);
+                for (let j=0; j<myRooms[i]['participants'].length; j++){
+                    if (myRooms[i]['participants'][j]['username'] !== request_user){
+                        if(myRooms[i]['room_name'] == roomName){
+                            to_profile = myRooms[i]['participants'][j]['username'];
+                        }
+                        document.getElementById(`status-${myRooms[i]['room_id']}`).className = `contact-status ${myRooms[i]['participants'][j]['status']}`
+                    }
+                }
+            }
+        }
+        catch{
+            console.error('error');
+        }
+        notificationSocket.send(JSON.stringify({'from':data['message']['author'],'to':to_profile,'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
+
         $('#search-input').on('keyup', function(){
             var value = $(this).val();
-            var searched_data = searchContact(value, newArray)
+            var searched_data = searchContact(value, myRooms)
             buildContacts(searched_data)
         })
-        updateScroll();
     }
 
 };
@@ -110,7 +93,8 @@ document.querySelector('#chat-message-input').onkeyup = function(e) {
 document.querySelector('#chat-message-submit').onclick = function(e) {
     const messageInputDom = document.querySelector('#chat-message-input');
     const message = messageInputDom.value;
-    
+    createMessageImmidietly(username, message)
+    updateScroll()
     chatSocket.send(JSON.stringify({
         'message': message,
         'command': 'new_message',
@@ -195,6 +179,25 @@ function buildContacts(rooms){
     }
 }
 
+function createMessageImmidietly(author, content){
+    var author = author;
+    var msgListTag = document.createElement('li')
+    var imgTag = document.createElement('img');
+    var pTag = document.createElement('p');
+    pTag.textContent = content;
+    imgTag.src = "http://emilcarlsson.se/assets/harveyspecter.png";
+
+    if (author === username){
+        msgListTag.className = 'sent';
+    }
+    else{
+        msgListTag.className = 'replies';
+    }
+    msgListTag.appendChild(imgTag);
+    msgListTag.appendChild(pTag);
+    document.querySelector('#chat-log').appendChild(msgListTag);
+}
+
 function createMessage(data){
     var author = data['author'];
     var msgListTag = document.createElement('li')
@@ -219,18 +222,25 @@ function updateScroll(){
     element.scrollTop = element.scrollHeight;
 }
 
-
-
 function searchContact(value, data){
     var filteredData = []
-
+    var request_user = username;
+    var to_profile;
+    
     for (var i=0; i<data.length; i++){
+        for(var j=0; j<data[i]['participants'].length; j++){
+            if(data[i]['participants'][j]['username'] != request_user){
+                to_profile = data[i]['participants'][j]['username'];
+            }
+        }
         value = value.toLowerCase()
-        var name = data[i]['to_profile'].toLowerCase()
+        
+        var name = to_profile.toLowerCase()
 
         if(name.includes(value)){
             filteredData.push(data[i])
         }
+        
     }
     return filteredData
 }
