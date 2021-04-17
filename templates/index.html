@@ -95,8 +95,6 @@
     }
     const csrftoken = getCookie('csrftoken');
 
-    
-
     window.onbeforeunload = function() {
         var profile_id = "{{profile.id}}";
         var url = `http://localhost:8000/api/profile-detail/${profile_id}`

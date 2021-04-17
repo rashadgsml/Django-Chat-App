@@ -42,7 +42,7 @@ def index(request):
         'friend_requests': friend_requests,
         'sent_request_list': sent_request_list
     }
-    return render(request, 'index.html', context)
+    return render(request, 'index2.html', context)
 
 @login_required
 def send_friend_request(request):
