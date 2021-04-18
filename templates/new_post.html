@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block headers %}
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/blog-home.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/notification.css' %}">
+{% endblock headers %}
+    
+{% block title %}
+    New Post
+{% endblock title %}
+
+
+{% block content %}
+    <br><br>
+    <form action="" method="POST" enctype="multipart/form-data" id="form">
+        {% csrf_token %}
+        {{form.media}}
+        {{form|crispy}}
+        <br>
+        <button type="submit" class="btn btn-danger">Post</button>
+    </form>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+{% endblock content %}
+
+
+{% block footer %}
+{% endblock footer %}

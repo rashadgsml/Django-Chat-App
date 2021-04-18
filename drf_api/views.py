@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from .serializers import ChatSerializer, ProfileSerializer, NotificationSerializer
-from chat.models import Chat, Profile, Notification
+from chat.models import Chat, Profile
+from core.models import Notification
 from rest_framework.mixins import (ListModelMixin, CreateModelMixin, RetrieveModelMixin,
                                                     UpdateModelMixin, DestroyModelMixin)
 from rest_framework import status, permissions

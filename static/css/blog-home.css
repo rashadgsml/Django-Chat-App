@@ -5,3 +5,18 @@ body {
 nav #ul{
   margin-left: 25%;
 }
+
+#dropdown-items{
+  width: 15%;
+  right: 3%;
+}
+
+#form{
+  width: 50%;
+  margin-left: 25%;
+}
+
+#friends_table{
+  width: 75%;
+  margin-left: 10%;
+}

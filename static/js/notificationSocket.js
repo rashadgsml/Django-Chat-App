@@ -11,7 +11,7 @@ var notificationSocket = new WebSocket(webSocketEndpoint)
 
 notificationSocket.onmessage = function(e){
     var data = JSON.parse(e.data);
-    const audio = new Audio('static/audio/notification_sound.ogg');
+    const audio = new Audio('/./static/audio/notification_sound.ogg');
   
     audio.play();
     

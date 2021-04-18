@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Friends
+{% endblock title %}
+    
+
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/notification.css' %}">
+<br><br>
+
+<h1 style="margin-left: 10%;">Friends</h1>
+<table class="table table-hover table-dark" id="friends_table">
+    <tbody>
+    {% for friend in profile.friends.all %}
+      <tr>
+        <td>{{friend}}</td>
+        <td>
+            <form action="{% url 'core:send-message-to-friend' %}" method="post">
+            {% csrf_token %}
+            <input class="btn btn-primary" type="submit" value="Send message">
+            <input type="hidden" name="friend" value="{{friend}}">
+        </form></td>
+        <td>
+            <form action="{% url 'core:remove-friend' %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="Remove friend">
+                <input type="hidden" name="friend" value="{{friend}}">
+            </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script src="{% static 'js/notificationSocket.js' %}"></script>
+  <script src="{% static 'js/notification.js' %}"></script>
+{% endblock content %}
+    
+
+{% block footer %}
+    
+{% endblock footer %}
+    

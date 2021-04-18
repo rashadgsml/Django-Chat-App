@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_api',
+    'core',
 
     'crispy_forms',
 ]

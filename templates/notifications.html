@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Friends
+{% endblock title %}
+    
+
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/notification.css' %}">
+<br><br>
+
+<table class="table table-hover table-dark" id="friends_table">
+    <tbody>
+    {% for i in friend_requests %}
+      <tr>
+        <td>{{i.from_profile}}</td>
+        <td>
+            <form action="{% url 'core:response-friend-request' %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-success" type="submit" value="Accept">
+                <input type="hidden" name="response" value="accept|{{i.from_profile}}">
+            </form></td>
+        <td>
+            <form action="{% url 'core:response-friend-request' %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="Decline">
+                <input type="hidden" name="response" value="decline|{{i.from_profile}}">
+            </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script src="{% static 'js/notificationSocket.js' %}"></script>
+  <script src="{% static 'js/notification.js' %}"></script>
+{% endblock content %}
+    
+
+{% block footer %}
+    
+{% endblock footer %}
+    

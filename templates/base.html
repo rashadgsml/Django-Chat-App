@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% block headers %}
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/blog-home.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/notification.css' %}">
+    {% endblock headers %}
+        
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+<body>
+      <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'core:index' %}">Social media</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav" id="ul">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:index' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:friends' %}">Friends</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:new-post' %}">New Post</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:notifications' %}">Notifications</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ml-auto" id="ul2">
+          <a href="javascript:void(0);" class="btn-user dropdown-toggle media align-items-center" data-toggle="dropdown" data-sidebar="true" aria-expanded="false">
+            <img class="mr-2" src="https://s3.eu-central-1.amazonaws.com/bootstrapbaymisc/blog/24_days_bootstrap/fox.jpg" width="40" height="40" alt="avatar">
+            <div class="media-body">
+                {{request.user.username}}
+            </div>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right" id="dropdown-items" role="menu">
+            <a class="dropdown-item" href="">Your posts</a>
+            <a class="dropdown-item" href="">Edit Profile</a>
+            <a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a>
+          </ul>
+        </ul>
+
+      </div>
+    </div>
+  </nav>
+
+  {% block content %}
+      
+  {% endblock content %}
+
+  
+  {% block footer %}
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2020</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+  {% endblock footer %}
+
+  
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/notificationSocket.js' %}"></script>
+  <script src="{% static 'js/notification.js' %}"></script>
+    
+</body>
+</html>

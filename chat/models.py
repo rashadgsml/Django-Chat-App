@@ -20,8 +20,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-    
-    
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -61,12 +59,4 @@ class Chat(models.Model):
 
     def __str__(self):
         return self.room_name
-
-class Notification(models.Model):
-    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE)
-    is_read = models.BooleanField(default=False)
-
-
-
 

@@ -2,7 +2,8 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import Message, Chat, Profile, Notification
+from .models import Message, Chat, Profile
+from core.models import Notification
 from django.contrib.auth import get_user_model
 from channels.layers import get_channel_layer
 

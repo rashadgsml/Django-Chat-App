@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from chat.models import Profile, Chat, Notification, Message
+from chat.models import Profile, Chat, Message
+from core.models import Notification
+
 from django.contrib.auth.models import User
 
 class ProfileSerializer(serializers.ModelSerializer):
