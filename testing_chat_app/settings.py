@@ -29,7 +29,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 500
 SESSION_SAVE_EVERY_REQUEST = True
 
-ALLOWED_HOSTS = ['localhost', '192.168.0.121', 'hidden-mountain-73672.herokuapp.com','127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '192.168.0.121', 'hidden-mountain-73672.herokuapp.com','127.0.0.1','chatapp-env.eba-9f6ekmjh.eu-central-1.elasticbeanstalk.com']
 
 
 # Application definition
