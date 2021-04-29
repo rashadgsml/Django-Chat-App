@@ -71,7 +71,10 @@ class NotificationConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        self.commands[text_data_json['command']](self, text_data_json)
+        try:
+            self.commands[text_data_json['command']](self, text_data_json)
+        except:
+            pass
         
 
     def notifications_to_json(self,notifications):
