@@ -9,7 +9,7 @@
 {% block headers %}
   <!-- Bootstrap core CSS -->
   <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Custom styles for this template -->
   <link href="{% static 'css/blog-home.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/notification.css' %}">
@@ -33,8 +33,8 @@
           <div class="card mb-4">
             <img class="card-img-top" src="{{post.image.url}}" alt="Card image cap">
             <div class="card-body">
-              <h2 class="card-title">{{post.author}}</h2>
-              <p class="card-text">{{post.description}}</p>
+              <h4 class="card-title"><strong>{{post.author}}</strong>: {{post.description}}</h4>
+              <i onclick="like(this)" class="fa fa-thumbs-up"></i>
             </div>
             <div class="card-footer text-muted">
               {{post.datetime}}
@@ -83,17 +83,9 @@
                     {% if user not in profile.friends.all and user != profile %}
                     <li>
                         {% if not user in sent_request_list %}
-                            <form action="{% url 'core:send-friend-request' %}" method="post">
-                            {% csrf_token %}
-                            <input class="btn btn-warning" type="submit" value="Send friend request">
-                            <input type="hidden" name="user" value="{{user}}">
-                            </form>
+                            <input class="btn btn-warning" id="send-{{user.user.id}}" name="{{user}}" type="submit" value="Send friend request">
                         {% else %}
-                        <form action="{% url 'core:cancel-friend-request' %}" method="post">
-                            {% csrf_token %}
-                            <input class="btn btn-danger" type="submit" value="Cancel friend request">
-                            <input type="hidden" name="user" value="{{user}}">
-                        </form>
+                            <input class="btn btn-danger" id="cancel-{{user.user.id}}" name="{{user}}" type="submit" value="Cancel friend request">
                         {% endif %}
                         
                     </li>
@@ -107,12 +99,12 @@
         </div>
 
         <!-- Side Widget -->
-        <div class="card my-4">
+        <!-- <div class="card my-4">
           <h5 class="card-header">Side Widget</h5>
           <div class="card-body">
             You can put anything you want inside of these side widgets. They are easy to use, and feature the new Bootstrap 4 card containers!
           </div>
-        </div>
+        </div> -->
 
       </div>
 
@@ -121,6 +113,18 @@
 
   </div>
   <!-- /.container -->
+<script>
+  {% for i in profiles %}
+    {% if i not in profile.friends.all and i != profile %}
+    try{
+      document.getElementById("send-{{i.user.id}}").onclick = function() {sendRequest('{{i.user.id}}')};
+    }
+    catch{
+      document.getElementById("cancel-{{i.user.id}}").onclick = function() {cancelRequest('{{i.user.id}}')};
+    }
+    {% endif %}
+  {% endfor %}
+</script>
 
 {% endblock content %}
   

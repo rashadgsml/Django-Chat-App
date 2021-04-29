@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.utils.safestring import mark_safe
 from chat.models import Message, Chat, Profile, FriendRequest
-from .models import Post
+from .models import Post, Notification
 from .forms import PostForm
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver 
@@ -58,18 +58,20 @@ def friends(request):
     return render(request,'friends.html', context)
 
 @login_required
-def notifications(request):
+def notifications_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
+    notifications = Notification.objects.filter(to_profile=profile)
     profiles = Profile.objects.all()
     friend_requests = profile.friend_requests.all().filter(to_profile=profile)
     sent_request_list = []
-    for i in profile.friend_requests.all():
-        sent_request_list.append(i.to_profile)
+    for i in friend_requests:
+        sent_request_list.append(i.from_profile)
     context = {
         'profile': profile,
         'profiles': profiles,
         'friend_requests': friend_requests,
         'sent_request_list': sent_request_list,
+        'notifications': notifications,
     }
     return render(request,'notifications.html',context)
 
@@ -77,10 +79,15 @@ def notifications(request):
 def send_friend_request(request):
     user_data = request.POST.get('user')
     the_user = User.objects.get(username = user_data)
-
+    
     user_profile = Profile.objects.get(user=the_user)
     my_profile = Profile.objects.get(user=request.user)
 
+    notifications = Notification.objects.create(
+        from_profile=my_profile,
+        to_profile=user_profile,
+        content='has sent you friend request'
+    )
     friend_request_qs = FriendRequest.objects.filter(from_profile=my_profile,to_profile=user_profile)
     if not friend_request_qs.exists():
         friend_request = FriendRequest.objects.create(from_profile=my_profile, to_profile=user_profile)
@@ -96,7 +103,8 @@ def cancel_friend_request(request):
 
     user_profile = Profile.objects.get(user=the_user)
     my_profile = Profile.objects.get(user=request.user)
-
+    Notification.objects.filter(from_profile=my_profile,to_profile=user_profile,content='has sent you friend request').delete()
+    
     FriendRequest.objects.filter(from_profile=my_profile,to_profile=user_profile).delete()
     # TODO: friend request successfully cancelled
 
@@ -114,7 +122,7 @@ def response_friend_request(request):
         my_profile.friends.add(user_profile)
         # TODO: You accepted friend request
     elif response == 'decline':
-        print('declined')
+        Notification.objects.filter(from_profile=user_profile,to_profile=my_profile).delete()
         # TODO: You declined the friend request
     FriendRequest.objects.filter(from_profile=user_profile, to_profile=my_profile).delete()
 

@@ -4,35 +4,51 @@
 {% block title %}
     Friends
 {% endblock title %}
-    
-
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/notification.css' %}">
 <br><br>
-
 <table class="table table-hover table-dark" id="friends_table">
-    <tbody>
-    {% for i in friend_requests %}
-      <tr>
-        <td>{{i.from_profile}}</td>
-        <td>
-            <form action="{% url 'core:response-friend-request' %}" method="post">
-                {% csrf_token %}
-                <input class="btn btn-success" type="submit" value="Accept">
-                <input type="hidden" name="response" value="accept|{{i.from_profile}}">
+  <tbody>
+    {% for notification in notifications %}
+      {% if notification.from_profile in profile.friends.all %}
+        <tr>
+          <td>You have new friend <strong><a href="">{{notification.from_profile}}</a></strong></td>
+          <td>
+            <form action="{% url 'core:send-message-to-friend' %}" method="post">
+            {% csrf_token %}
+            <input class="btn btn-primary" type="submit" value="Send message">
+            <input type="hidden" name="friend" value="{{notification.from_profile}}">
             </form></td>
+            <td>
+                <form action="{% url 'core:remove-friend' %}" method="post">
+                    {% csrf_token %}
+                    <input class="btn btn-danger" type="submit" value="Remove friend">
+                    <input type="hidden" name="friend" value="{{notification.from_profile}}">
+                </form>
+            </td>
+        </tr>
+      {% elif notification.from_profile in sent_request_list %}
+      <tr>
+        <td><strong><a href="">{{notification.from_profile}}</a></strong> {{notification.content}}</td>
         <td>
-            <form action="{% url 'core:response-friend-request' %}" method="post">
-                {% csrf_token %}
-                <input class="btn btn-danger" type="submit" value="Decline">
-                <input type="hidden" name="response" value="decline|{{i.from_profile}}">
-            </form>
-        </td>
+          <form action="{% url 'core:response-friend-request' %}" method="post">
+              {% csrf_token %}
+              <input class="btn btn-success" type="submit" value="Accept">
+              <input type="hidden" name="response" value="accept|{{notification.from_profile}}">
+          </form></td>
+      <td>
+          <form action="{% url 'core:response-friend-request' %}" method="post">
+              {% csrf_token %}
+              <input class="btn btn-danger" type="submit" value="Decline">
+              <input type="hidden" name="response" value="decline|{{notification.from_profile}}">
+          </form>
+      </td>
       </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
 
   <script src="{% static 'js/notificationSocket.js' %}"></script>
   <script src="{% static 'js/notification.js' %}"></script>

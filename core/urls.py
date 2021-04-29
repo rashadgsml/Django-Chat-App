@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import (index, send_message_to_friend, send_friend_request,friends,notifications,
+from .views import (index, send_message_to_friend, send_friend_request,friends,notifications_view,
                     response_friend_request, cancel_friend_request, remove_friend,CreatePostView)
 
 app_name = 'core'
@@ -14,5 +14,5 @@ urlpatterns = [
     path('remove-friend/', remove_friend, name='remove-friend'),
     path('new-post/', login_required(CreatePostView.as_view()), name='new-post'),
     path('friends/',friends,name='friends'),
-    path('notifications/',notifications,name='notifications'),
+    path('notifications/',notifications_view,name='notifications'),
 ]

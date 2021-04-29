@@ -2,7 +2,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import Message, Chat, Profile
+from .models import Message, Chat, Profile, FriendRequest
 from core.models import Notification
 from django.contrib.auth import get_user_model
 from channels.layers import get_channel_layer
@@ -16,6 +16,33 @@ class NotificationConsumer(WebsocketConsumer):
         message = event['message']
         if self.scope["user"].username==message['to']:
             self.send(text_data=json.dumps(message))
+
+    def send_message_notification(self, data):
+        async_to_sync(self.channel_layer.group_send)(
+            'notifications',
+            {
+                'type': 'notify',
+                'message': data,
+            }
+        )
+
+    def send_friend_request(self, data):
+        my_profile = Profile.objects.get(user=self.scope["user"])
+        to_user = User.objects.get(id=int(data['to_id']))
+        to_profile = Profile.objects.get(user=to_user)
+        Notification.objects.create(from_profile=my_profile,to_profile=to_profile,content='has sent you friend request')
+        friend_request_qs = FriendRequest.objects.filter(from_profile=my_profile,to_profile=to_profile)
+        if not friend_request_qs.exists():
+            friend_request = FriendRequest.objects.create(from_profile=my_profile, to_profile=to_profile)
+            to_profile.friend_requests.add(friend_request)
+            my_profile.friend_requests.add(friend_request)
+
+    def cancel_friend_request(self, data):
+        my_profile = Profile.objects.get(user=self.scope["user"])
+        to_user = User.objects.get(id=int(data['to_id']))
+        to_profile = Profile.objects.get(user=to_user)
+        FriendRequest.objects.filter(from_profile=my_profile,to_profile=to_profile).delete()
+        Notification.objects.filter(from_profile=my_profile,to_profile=to_profile,content='has sent you friend request').delete()
 
     def connect(self):
         profile = Profile.objects.get(user=self.scope["user"])
@@ -36,15 +63,16 @@ class NotificationConsumer(WebsocketConsumer):
             self.channel_name
         )
 
+    commands = {
+        'message_notification':send_message_notification,
+        'send_friend_request': send_friend_request,
+        'cancel_friend_request': cancel_friend_request,
+    }
+
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        async_to_sync(self.channel_layer.group_send)(
-            'notifications',
-            {
-                'type': 'notify',
-                'message': text_data_json,
-            }
-        )
+        self.commands[text_data_json['command']](self, text_data_json)
+        
 
     def notifications_to_json(self,notifications):
         result = []

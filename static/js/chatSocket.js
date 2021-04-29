@@ -68,7 +68,7 @@ chatSocket.onmessage = function(e) {
         catch{
             console.error('error');
         }
-        notificationSocket.send(JSON.stringify({'from':data['message']['author'],'to':to_profile,'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
+        notificationSocket.send(JSON.stringify({'type':'message_notification','from':data['message']['author'],'to':to_profile,'content':data['message']['content'],'timestamp':data['message']['timestamp']}))
 
         $('#search-input').on('keyup', function(){
             var value = $(this).val();
