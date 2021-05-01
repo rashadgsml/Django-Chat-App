@@ -108,7 +108,16 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ebdb',
+        'USER': 'RashadChatApp',
+        'PASSWORD': 'gasimov2001r',
+        'HOST': 'aabch0s7yo3os7.clgkmqnzd1jr.eu-central-1.rds.amazonaws.com',
+        'PORT': '5432',
+    }
+}
 
 
 # Password validation
