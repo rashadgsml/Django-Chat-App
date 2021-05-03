@@ -31,7 +31,7 @@ def save_user_profile(sender, instance, **kwargs):
     try:
         instance.profile.save()
     except:
-        print("Exception")
+        pass
 
 class Message(models.Model):
     author = models.ForeignKey(User, related_name='author_messages', on_delete=models.CASCADE)
