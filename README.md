@@ -1,4 +1,5 @@
-https://hidden-mountain-73672.herokuapp.com/
+![Screenshot_2](https://user-images.githubusercontent.com/50767818/117080540-1d44c580-ad4f-11eb-9f52-f372bbe94350.png)
 
-You can check the chat app with the link mentioned above. Do not type your e-mail when signing up, you will get an error because I deactivated sending verification code.
-I know the home page view is awful, I only focused on chat side.
+![Screenshot_4](https://user-images.githubusercontent.com/50767818/117080617-4b2a0a00-ad4f-11eb-80ce-14a03c2b279d.png)
+
+![Screenshot_5](https://user-images.githubusercontent.com/50767818/117080704-714faa00-ad4f-11eb-96c3-2a713b07e5be.png)
